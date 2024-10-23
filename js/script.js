@@ -15,6 +15,10 @@ const gameBoard = (function() {
     const playerOne = Player("PlayerOne", "X");
     const playerTwo = Player("PlayerTwo", "O");
 
+    function getBoard() {
+        return board;
+    }
+
     function printBoard() {
         // Print the board in a 3x3 format
         console.log(`
@@ -57,13 +61,13 @@ const gameBoard = (function() {
     }
 
     return {
-        board,
         playerOne,
         playerTwo,
         printBoard,
         resetBoard,
         checkForWin,
         isTieGame,
+        getBoard,
     };
 })();
 
@@ -71,6 +75,7 @@ function handleRounds(playerOne, playerTwo) {
     // First player will always be marker 'X'
     let currentPlayer = playerOne;
     let nextPlayer = playerTwo;
+    let board = gameBoard.getBoard();
 
     gameBoard.printBoard();
 
@@ -86,11 +91,11 @@ function handleRounds(playerOne, playerTwo) {
         }
         position = +position;
 
-        if (gameBoard.board[position] === "") {
-            gameBoard.board[position] = currentPlayer.getMarker();
+        if (board[position] === "") {
+            board[position] = currentPlayer.getMarker();
             gameBoard.printBoard();
 
-            gameBoard.checkForWin(gameBoard.board, currentPlayer.getMarker())
+            gameBoard.checkForWin(board, currentPlayer.getMarker())
                 ? (isGameWinner = true)
                 : (isGameWinner = false);
 
@@ -101,7 +106,7 @@ function handleRounds(playerOne, playerTwo) {
                 break;
             }
 
-            if (gameBoard.isTieGame) {
+            if (gameBoard.isTieGame(board)) {
                 console.log("It's a tie game! No winner this round.");
                 break;
             }
@@ -114,10 +119,7 @@ function handleRounds(playerOne, playerTwo) {
                 currentPlayer = playerOne;
                 nextPlayer = playerTwo;
             }
-        } else if (
-            gameBoard.board[position] === "X" ||
-            gameBoard.board[position] === "O"
-        ) {
+        } else if (board[position] === "X" || board[position] === "O") {
             console.log("That position on the board is already filled, try again.");
             console.log(`Still ${currentPlayer.getName()}'s turn.`);
         }
