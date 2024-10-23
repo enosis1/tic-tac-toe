@@ -14,7 +14,7 @@ function Player(name, marker) {
 }
 
 const gameBoard = (function() {
-    const board = ["", "", "", "", "", "", "", "", ""];
+    let board = ["", "", "", "", "", "", "", "", ""];
 
     // Creates the players
     const playerOne = Player("PlayerOne", "X");
@@ -31,20 +31,41 @@ const gameBoard = (function() {
         `);
     }
 
-    return { board, playerOne, playerTwo, printBoard };
+    function resetBoard() {
+        board = ["", "", "", "", "", "", "", "", ""];
+    }
+
+    return { board, playerOne, playerTwo, printBoard, resetBoard };
 })();
 
-function handleRound(playerOne, playerTwo) {
+function handleRounds(playerOne, playerTwo) {
     // First player will always be marker 'X'
     let currentPlayer = playerOne;
     let nextPlayer = playerTwo;
 
-    while (!checkForWin(gameBoard.board, currentPlayer.marker)) {
-        let position = +prompt("Make your move: ");
+    gameBoard.printBoard();
+
+    // TODO: Correct this logic below to handle checking the win function is correct
+    let isGameWinner = false;
+    while (!isGameWinner) {
+        let position = prompt(
+            `${currentPlayer.getName()}'s turn. Make your move: `,
+        );
+
+        if (position === "stop") {
+            break;
+        }
+        position = +position;
 
         if (gameBoard.board[position] === "") {
             gameBoard.board[position] = currentPlayer.getMarker();
             gameBoard.printBoard();
+
+            checkForWin(gameBoard.board, currentPlayer.getMarker())
+                ? (isGameWinner = true)
+                : (isGameWinner = false);
+
+            if (isGameWinner) break;
 
             console.log(`${nextPlayer.getName()}'s turn!`);
             if (currentPlayer === playerOne) {
@@ -62,7 +83,16 @@ function handleRound(playerOne, playerTwo) {
             console.log(`Still ${currentPlayer.getName()}'s turn.`);
         }
     }
+    // Increase the score of last move player
     currentPlayer.win();
+    console.log(`Game over! ${currentPlayer.getName()} wins this round.`);
+
+    // Resets the game board with empty tiles
+    gameBoard.resetBoard();
+
+    // Sets the current player back to playerOne with marker 'X'
+    currentPlayer = playerOne;
+    nextPlayer = playerTwo;
 }
 
 function checkForWin(board, marker) {
@@ -85,8 +115,4 @@ function checkForWin(board, marker) {
     return winningCombinations.some((combo) =>
         combo.every((index) => board[index] === marker),
     );
-}
-
-function resetGame() {
-    gameBoard.board();
 }
