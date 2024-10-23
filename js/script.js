@@ -14,7 +14,7 @@ function Player(name, marker) {
 }
 
 const gameBoard = (function() {
-    const board = ["X", "O", "X", "O", "X", "O", "X", "O", "X"];
+    const board = ["", "", "", "", "", "", "", "", ""];
 
     // Creates the players
     const playerOne = Player("PlayerOne", "X");
@@ -39,16 +39,40 @@ function handleRound(playerOne, playerTwo) {
     let currentPlayer = playerOne;
     let nextPlayer = playerTwo;
 
-    gameBoard.printBoard();
-
     const acceptable_positions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     let position = +prompt("Make your move: ");
 
-    if (position in acceptable_positions) {
-        gameBoard.board[position] = currentPlayer.getMarker();
-        gameBoard.printBoard();
-    } else {
-        console.log("That wasn't a correct position... try again!");
-        console.log(`Still ${currentPlayer.getName()}'s turn.`);
+    while (!checkForWin(gameBoard.board, currentPlayer.marker)) {
+        if (acceptable_positions.includes(position)) {
+            gameBoard.board[position] = currentPlayer.getMarker();
+            gameBoard.printBoard();
+
+            console.log(`${nextPlayer}'s turn!`)
+        } else {
+            console.log("That wasn't a correct position... try again!");
+            console.log(`Still ${currentPlayer.getName()}'s turn.`);
+        }
     }
+}
+
+function checkForWin(board, marker) {
+    const winningCombinations = [
+        // Horizontal wins
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+
+        // Vertical wins
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+
+        // Diagonal wins
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
+
+    return winningCombinations.some((combo) =>
+        combo.every((index) => board[index] === marker),
+    );
 }
