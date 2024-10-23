@@ -39,20 +39,30 @@ function handleRound(playerOne, playerTwo) {
     let currentPlayer = playerOne;
     let nextPlayer = playerTwo;
 
-    const acceptable_positions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    let position = +prompt("Make your move: ");
-
     while (!checkForWin(gameBoard.board, currentPlayer.marker)) {
-        if (acceptable_positions.includes(position)) {
+        let position = +prompt("Make your move: ");
+
+        if (gameBoard.board[position] === "") {
             gameBoard.board[position] = currentPlayer.getMarker();
             gameBoard.printBoard();
 
-            console.log(`${nextPlayer}'s turn!`)
-        } else {
-            console.log("That wasn't a correct position... try again!");
+            console.log(`${nextPlayer.getName()}'s turn!`);
+            if (currentPlayer === playerOne) {
+                currentPlayer = nextPlayer;
+                nextPlayer = playerOne;
+            } else {
+                currentPlayer = playerOne;
+                nextPlayer = playerTwo;
+            }
+        } else if (
+            gameBoard.board[position] === "X" ||
+            gameBoard.board[position] === "O"
+        ) {
+            console.log("That position on the board is already filled, try again.");
             console.log(`Still ${currentPlayer.getName()}'s turn.`);
         }
     }
+    currentPlayer.win();
 }
 
 function checkForWin(board, marker) {
@@ -75,4 +85,8 @@ function checkForWin(board, marker) {
     return winningCombinations.some((combo) =>
         combo.every((index) => board[index] === marker),
     );
+}
+
+function resetGame() {
+    gameBoard.board();
 }
