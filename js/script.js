@@ -1,8 +1,3 @@
-// TODO: Create tic-tac-toe within the console
-// We need two players who have each Marker X and Marker O
-// We need to create the board and update each time players select where they
-// place their marker
-
 function Player(name, marker) {
     let score = 0;
     return {
@@ -35,7 +30,41 @@ const gameBoard = (function() {
         board = ["", "", "", "", "", "", "", "", ""];
     }
 
-    return { board, playerOne, playerTwo, printBoard, resetBoard };
+    function checkForWin(board, marker) {
+        const winningCombinations = [
+            // Horizontal wins
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+
+            // Vertical wins
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+
+            // Diagonal wins
+            [0, 4, 8],
+            [2, 4, 6],
+        ];
+
+        return winningCombinations.some((combo) =>
+            combo.every((index) => board[index] === marker),
+        );
+    }
+
+    function isTieGame(board) {
+        return board.every((position) => position != "");
+    }
+
+    return {
+        board,
+        playerOne,
+        playerTwo,
+        printBoard,
+        resetBoard,
+        checkForWin,
+        isTieGame,
+    };
 })();
 
 function handleRounds(playerOne, playerTwo) {
@@ -61,11 +90,21 @@ function handleRounds(playerOne, playerTwo) {
             gameBoard.board[position] = currentPlayer.getMarker();
             gameBoard.printBoard();
 
-            checkForWin(gameBoard.board, currentPlayer.getMarker())
+            gameBoard.checkForWin(gameBoard.board, currentPlayer.getMarker())
                 ? (isGameWinner = true)
                 : (isGameWinner = false);
 
-            if (isGameWinner) break;
+            if (isGameWinner) {
+                // Increase the score of last move player
+                console.log(`Game over! ${currentPlayer.getName()} wins this round.`);
+                currentPlayer.win();
+                break;
+            }
+
+            if (gameBoard.isTieGame) {
+                console.log("It's a tie game! No winner this round.");
+                break;
+            }
 
             console.log(`${nextPlayer.getName()}'s turn!`);
             if (currentPlayer === playerOne) {
@@ -83,9 +122,6 @@ function handleRounds(playerOne, playerTwo) {
             console.log(`Still ${currentPlayer.getName()}'s turn.`);
         }
     }
-    // Increase the score of last move player
-    currentPlayer.win();
-    console.log(`Game over! ${currentPlayer.getName()} wins this round.`);
 
     // Resets the game board with empty tiles
     gameBoard.resetBoard();
@@ -93,26 +129,4 @@ function handleRounds(playerOne, playerTwo) {
     // Sets the current player back to playerOne with marker 'X'
     currentPlayer = playerOne;
     nextPlayer = playerTwo;
-}
-
-function checkForWin(board, marker) {
-    const winningCombinations = [
-        // Horizontal wins
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-
-        // Vertical wins
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-
-        // Diagonal wins
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-
-    return winningCombinations.some((combo) =>
-        combo.every((index) => board[index] === marker),
-    );
 }
