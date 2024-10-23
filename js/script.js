@@ -3,25 +3,52 @@
 // We need to create the board and update each time players select where they
 // place their marker
 
-function createPlayer(name, marker) {
-  const getName = function() {
-    return name;
-  };
-
-  const getMarker = function() {
-    return marker;
-  };
-  return { getName, getMarker };
+function Player(name, marker) {
+    let score = 0;
+    return {
+        getName: () => name,
+        getMarker: () => marker,
+        getScore: () => score,
+        win: () => score++,
+    };
 }
 
 const gameBoard = (function() {
-  const board = [[], [], [], [], [], [], [], [], []];
+    const board = ["X", "O", "X", "O", "X", "O", "X", "O", "X"];
 
-  const playerOne = createPlayer("PlayerOne", "X");
-  const playerTwo = createPlayer("PlayerTwo", "O");
+    // Creates the players
+    const playerOne = Player("PlayerOne", "X");
+    const playerTwo = Player("PlayerTwo", "O");
 
-  return function generateBoard() {
-    const copyOfBoard = board.slice();
-    return { copyOfBoard, playerOne, playerTwo };
-  };
+    function printBoard() {
+        // Print the board in a 3x3 format
+        console.log(`
+    ${board[0]} | ${board[1]} | ${board[2]}
+    ---------
+    ${board[3]} | ${board[4]} | ${board[5]}
+    ---------
+    ${board[6]} | ${board[7]} | ${board[8]}
+        `);
+    }
+
+    return { board, playerOne, playerTwo, printBoard };
 })();
+
+function handleRound(playerOne, playerTwo) {
+    // First player will always be marker 'X'
+    let currentPlayer = playerOne;
+    let nextPlayer = playerTwo;
+
+    gameBoard.printBoard();
+
+    const acceptable_positions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let position = +prompt("Make your move: ");
+
+    if (position in acceptable_positions) {
+        gameBoard.board[position] = currentPlayer.getMarker();
+        gameBoard.printBoard();
+    } else {
+        console.log("That wasn't a correct position... try again!");
+        console.log(`Still ${currentPlayer.getName()}'s turn.`);
+    }
+}
