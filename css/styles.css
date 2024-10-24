@@ -1,3 +1,7 @@
+:root {
+    --primary-color: #94a3b8;
+}
+
 * {
     margin: 0;
     box-sizing: border-box;
@@ -15,7 +19,7 @@
 }
 
 .header-title {
-    background-color: #fde047;
+    background-color: var(--primary-color);
     text-align: center;
     font-size: 2em;
 }
@@ -28,10 +32,21 @@
 .game-buttons {
     display: flex;
     justify-content: center;
+    gap: 10px;
     padding: 10px;
 }
 
+.game-button {
+    border: 0px;
+    width: 120px;
+    height: 80px;
+    font-size: 1.5em;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+}
+
 .game-container {
+    padding: 50px 0px 50px 0px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -49,10 +64,15 @@
 .grid-cell-button {
     width: 150px;
     height: 150px;
+    background-color: #fff;
+    border: solid #d1d5db;
+    border-radius: 10px;
 }
 
-.grid-cell-button {
-    background-color: white;
-    border: solid black;
-    border-radius: 10px;
+button:hover {
+    background-color: #e2e8f0;
+}
+
+button:active {
+    transform: translateY(1px);
 }
