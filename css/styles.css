@@ -53,6 +53,11 @@
     justify-content: center;
 }
 
+.game-player-text {
+    font-size: 2em;
+    padding-bottom: 15px;
+}
+
 .game-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -67,6 +72,7 @@
     background-color: #fff;
     border: solid #d1d5db;
     border-radius: 10px;
+    font-size: 3rem;
 }
 
 button:hover {
