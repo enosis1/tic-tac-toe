@@ -5,15 +5,31 @@ const displayController = (function () {
     for (let i = 0; i < 3; i++) {
       for (let row = 0; row < 3; row++) {
         let cell = document.createElement("button");
-        cell.textContent = "X";
         cell.classList.add("grid-cell");
         cell.classList.add("grid-cell-button");
+        cell.setAttribute("data-index", i * 3 + row); // Set index for each button
+
         gameGrid.appendChild(cell);
       }
     }
   }
 
+  function displayMarker(cell, marker) {
+    cell.textContent = marker;
+  }
+
+  function getGameGrid() {
+    return document.querySelectorAll(".grid-cell");
+  }
+
+  function displayText(player) {
+    const gamePlayerText = document.querySelector(".game-player-text");
+    gamePlayerText.textContent = `${player.getName()}'s turn!`;
+  }
+
   generateGameGrid();
+
+  return { displayMarker, displayText, getGameGrid };
 })();
 
 function Player(name, marker) {
@@ -37,19 +53,11 @@ const gameBoard = (function () {
     return board;
   }
 
-  function printBoard() {
-    // Print the board in a 3x3 format
-    console.log(`
-    ${board[0]} | ${board[1]} | ${board[2]}
-    ---------
-    ${board[3]} | ${board[4]} | ${board[5]}
-    ---------
-    ${board[6]} | ${board[7]} | ${board[8]}
-        `);
-  }
-
   function resetBoard() {
     board = ["", "", "", "", "", "", "", "", ""];
+    // Clear the visual board
+    const cells = displayController.getGameGrid();
+    cells.forEach((cell) => (cell.textContent = ""));
   }
 
   function checkForWin(board, marker) {
@@ -81,7 +89,6 @@ const gameBoard = (function () {
   return {
     playerOne,
     playerTwo,
-    printBoard,
     resetBoard,
     checkForWin,
     isTieGame,
@@ -89,64 +96,63 @@ const gameBoard = (function () {
   };
 })();
 
-function handleRounds(playerOne, playerTwo) {
+function handleRounds() {
   // First player will always be marker 'X'
+  const playerOne = Player("Player One", "X");
+  const playerTwo = Player("Player Two", "O");
+
   let currentPlayer = playerOne;
-  let nextPlayer = playerTwo;
   let board = gameBoard.getBoard();
+  let isWinner = false;
 
-  gameBoard.printBoard();
+  const gameText = document.querySelector(".game-player-text");
 
-  // TODO: Correct this logic below to handle checking the win function is correct
-  let isGameWinner = false;
-  while (!isGameWinner) {
-    let position = prompt(
-      `${currentPlayer.getName()}'s turn. Make your move: `,
-    );
+  const cells = displayController.getGameGrid();
+  displayController.displayText(currentPlayer);
 
-    if (position === "stop") {
-      break;
-    }
-    position = +position;
+  const resetButton = document.querySelector(".game-button");
+  resetButton.addEventListener("click", () => {
+    gameBoard.resetBoard();
+    board = gameBoard.getBoard();
+    isWinner = false;
+    currentPlayer = playerOne;
+    displayController.displayText(currentPlayer); // Update display
+  });
 
-    if (board[position] === "") {
-      board[position] = currentPlayer.getMarker();
-      gameBoard.printBoard();
+  cells.forEach((cell) => {
+    cell.addEventListener("click", (event) => {
+      position = event.target.dataset.index;
 
-      gameBoard.checkForWin(board, currentPlayer.getMarker())
-        ? (isGameWinner = true)
-        : (isGameWinner = false);
-
-      if (isGameWinner) {
-        // Increase the score of last move player
-        console.log(`Game over! ${currentPlayer.getName()} wins this round.`);
-        currentPlayer.win();
-        break;
+      if (isWinner) {
+        return;
       }
 
-      if (gameBoard.isTieGame(board)) {
-        console.log("It's a tie game! No winner this round.");
-        break;
+      if (board[position] === "") {
+        board[position] = currentPlayer.getMarker();
+        displayController.displayMarker(
+          event.target,
+          currentPlayer.getMarker(),
+        );
+
+        // Checks for a winner
+        if (gameBoard.checkForWin(board, currentPlayer.getMarker())) {
+          // Increase the score of last move player
+          gameText.textContent = `${currentPlayer.getName()} wins this round!`;
+          isWinner = true;
+          return;
+        }
+
+        if (gameBoard.isTieGame(board)) {
+          gameText.textContent = "It's a tie game! No winner this round.";
+          return;
+        }
+
+        // Switch Players
+        currentPlayer = currentPlayer === playerOne ? playerTwo : playerOne;
+        displayController.displayText(currentPlayer);
       }
-
-      console.log(`${nextPlayer.getName()}'s turn!`);
-      if (currentPlayer === playerOne) {
-        currentPlayer = nextPlayer;
-        nextPlayer = playerOne;
-      } else {
-        currentPlayer = playerOne;
-        nextPlayer = playerTwo;
-      }
-    } else if (board[position] === "X" || board[position] === "O") {
-      console.log("That position on the board is already filled, try again.");
-      console.log(`Still ${currentPlayer.getName()}'s turn.`);
-    }
-  }
-
-  // Resets the game board with empty tiles
-  gameBoard.resetBoard();
-
-  // Sets the current player back to playerOne with marker 'X'
-  currentPlayer = playerOne;
-  nextPlayer = playerTwo;
+    });
+  });
 }
+
+handleRounds();
